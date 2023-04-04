@@ -1,0 +1,16 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <title>Fazer upload de arquivo</title>
+</head>
+<body>
+
+<h1>Fazer upload de arquivo</h1>
+
+<form th:action="@{/uploadFile}" method="post" enctype="multipart/form-data">
+    <input type="file" name="file"/>
+    <button type="submit">Enviar</button>
+</form>
+
+</body>
+</html>

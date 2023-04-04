@@ -1,0 +1,15 @@
+spring:
+  thymeleaf:
+    enabled: true
+  datasource:
+    url: jdbc:mysql://172.18.0.2:3306/dev?serverTimezone=UTC
+    username: dev
+    password: 1337
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  flyway:
+    baseline-on-migrate: true
+  logging:
+    level:
+      org:
+        springframework:
+          security: INFO
