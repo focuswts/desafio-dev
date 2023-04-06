@@ -4,12 +4,16 @@ import com.bgt.desafio.constants.InputOutput;
 import com.bgt.desafio.constants.Signal;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "NATURE")
 public class CnabNatureEntity {
