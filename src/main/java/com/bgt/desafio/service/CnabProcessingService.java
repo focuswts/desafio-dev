@@ -5,6 +5,7 @@ import com.bgt.desafio.constants.InputOutput;
 import com.bgt.desafio.constants.Signal;
 import com.bgt.desafio.dto.CnabNature;
 import com.bgt.desafio.dto.CnabTransaction;
+import com.bgt.desafio.dto.StoreDTO;
 import com.bgt.desafio.entity.CnabTransactionEntity;
 import com.bgt.desafio.repository.CnabTransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,9 +49,8 @@ public class CnabProcessingService {
 
         BigDecimal totalSaidas = getInputsTotal(transactions, InputOutput.SAIDA);
 
-        List<CnabTransactionEntity> cnabTransactionEntityList = getCnabTransactionEntityList(transactions);
+        List<CnabTransactionEntity> cnabTransactionEntities = transactionRepository.saveAll(getCnabTransactionEntityList(transactions));
 
-        List<CnabTransactionEntity> cnabTransactionEntities = transactionRepository.saveAll(cnabTransactionEntityList);
 
         model.addAttribute("transactions", cnabTransactionEntities);
         model.addAttribute("transacoesSize", cnabTransactionEntities.size());
@@ -58,10 +58,9 @@ public class CnabProcessingService {
         model.addAttribute("totalSaidas", totalSaidas);
 
         return "resultado-cnab";
-
     }
 
-    private static void buildTransactionsFromFile(MultipartFile arquivo, List<CnabTransaction> transactions, Map<String, CnabNature> naturesByType) throws IOException {
+    public static void buildTransactionsFromFile(MultipartFile arquivo, List<CnabTransaction> transactions, Map<String, CnabNature> naturesByType) throws IOException {
         try (
                 BufferedReader reader = new BufferedReader(
                         new InputStreamReader(
@@ -88,7 +87,49 @@ public class CnabProcessingService {
         return transactionRepository.findAll();
     }
 
-    private List<CnabTransactionEntity> getCnabTransactionEntityList(List<CnabTransaction> transactions) {
+    public String getAllTransactionsByStoreName(Model model) {
+        List<CnabTransactionEntity> allTransactions = transactionRepository.findAll();
+
+        List<StoreDTO> storesData = allTransactions.stream().map(
+                transaction -> {
+                    List<CnabTransactionEntity> allByStoreName = transactionRepository.findAllByStoreName(
+                            transaction.getStoreName()
+                    );
+
+                    StoreDTO store = new StoreDTO();
+                    store.setStoreName(transaction.getStoreName());
+                    store.setStoreTransactions(allByStoreName);
+
+                    store.setSaldo(this.getStorePositiveMoney(allByStoreName));
+
+                    return store;
+                }
+        ).toList();
+
+        model.addAttribute("stores", storesData);
+
+        return "stores";
+    }
+
+    private BigDecimal getStorePositiveMoney(List<CnabTransactionEntity> allByStoreName) {
+
+        BigDecimal allStoreInput = BigDecimal.ZERO;
+
+        for (CnabTransactionEntity transaction : allByStoreName) {
+            BigDecimal value = transaction.getValue();
+
+            if (transaction.getNature().getSignal().equals(Signal.POSITIVO)) {
+                allStoreInput = allStoreInput.add(value);
+            } else {
+                allStoreInput = allStoreInput.subtract(value);
+            }
+        }
+
+        return allStoreInput;
+    }
+
+
+    public List<CnabTransactionEntity> getCnabTransactionEntityList(List<CnabTransaction> transactions) {
         return transactions.stream()
                 .map(
                         cnabTransaction -> converter.toEntity(cnabTransaction)
@@ -98,14 +139,14 @@ public class CnabProcessingService {
                 );
     }
 
-    private static BigDecimal getInputsTotal(List<CnabTransaction> transactions, InputOutput entrada) {
+    public static BigDecimal getInputsTotal(List<CnabTransaction> transactions, InputOutput entrada) {
         return transactions.stream()
                 .filter(t -> t.getInputOutput() == entrada)
                 .map(CnabTransaction::getValue)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private static void createNaturesMap(Map<String, CnabNature> naturezasPorTipo) {
+    public static void createNaturesMap(Map<String, CnabNature> naturezasPorTipo) {
         naturezasPorTipo.put("1", new CnabNature("Débito", InputOutput.SAIDA, Signal.POSITIVO));
         naturezasPorTipo.put("2", new CnabNature("Boleto", InputOutput.SAIDA, Signal.NEGATIVO));
         naturezasPorTipo.put("3", new CnabNature("Financiamento", InputOutput.SAIDA, Signal.NEGATIVO));
