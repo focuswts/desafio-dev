@@ -29,6 +29,7 @@ public class SecurityConfig {
                 .authorizeRequests(authorize -> {
                             authorize.requestMatchers("/");
                             authorize.requestMatchers("/home").hasRole("USER");
+                            authorize.requestMatchers("/upload").hasRole("USER");
                             authorize.requestMatchers("/resultado-cnab").hasRole("USER");
                             authorize.requestMatchers("/transactions").hasRole("USER");
                             authorize.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll();
