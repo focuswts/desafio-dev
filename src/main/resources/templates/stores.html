@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Transações Agrupadas por Loja</title>
+    <style>
+        body {
+            background-color: #f2f2f2;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            font-size: 30px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 50px;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #ddd;
+        }
+        .total {
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-align: right;
+            font-size: 18px;
+        }
+        .total span {
+            margin-left: 10px;
+            font-size: 18px;
+            font-weight: normal;
+        }
+        .transactions {
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 40px;
+        }
+        .card-number {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<h1>Transações Agrupadas por Loja</h1>
+<a href="/home">Voltar</a> <br>
+
+<table id="stores-table">
+    <thead>
+    <tr>
+        <th>Loja</th>
+        <th>Transações</th>
+        <th>Saldo</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="store : ${stores}">
+        <td th:text="${store.storeName}"></td>
+        <td>
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tipo</th>
+                    <th>Data</th>
+                    <th>Valor</th>
+                    <th>CPF</th>
+                    <th>Número do Cartão</th>
+                    <th>Hora</th>
+                    <th>Descrição da Natureza</th>
+                    <th>Sinal</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="transaction : ${store.storeTransactions}">
+                    <td th:text="${transaction.id}"></td>
+                    <td th:text="${transaction.type}"></td>
+                    <td th:text="${transaction.date}"></td>
+                    <td th:text="${transaction.value}"></td>
+                    <td th:text="${transaction.cpf}"></td>
+                    <td th:text="${transaction.creditCard.number}"></td>
+                    <td th:text="${transaction.hour}"></td>
+                    <td th:text="${transaction.nature.description}"></td>
+                    <td th:text="${transaction.nature.signal}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </td>
+        <td th:text="${store.saldo}"></td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
